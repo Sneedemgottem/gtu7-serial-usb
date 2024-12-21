@@ -1,6 +1,7 @@
 #pragma once
 #include <termios.h>
 #include <unistd.h>
+#include <string>
 #include "razgtu7/structs.h"
 
 #define TTY "/dev/ttyACM0"
@@ -14,7 +15,8 @@ class GPS {
             close(this->serial_port_);
         }
 
-        void ReadMessageIntoBuffer(); // TODO: turn into private when done testing
+        //void ReadMessageIntoBuffer(); // TODO: turn into private when done testing
+        std::string ReadRawSerialMessage();
         void ParseGPSBuffer(char *read_buf);
 
     private:

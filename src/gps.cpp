@@ -31,22 +31,24 @@ void GPS::SetTTYStructFlags() {
     cfsetispeed(&this->tty_, BAUDRATE);
 
     // Configure 8N1 (8 data bits, no parity, 1 stop bit)
-    this->tty_.c_cflag = (this->tty_.c_lflag & ~CSIZE) | CS8;
     this->tty_.c_cflag |= (CLOCAL | CREAD);
-    this->tty_.c_cflag &= ~(PARENB | CSTOPB | CRTSCTS);
+    this->tty_.c_cflag &= ~PARENB;
+    this->tty_.c_cflag &= ~CSTOPB;
+    this->tty_.c_cflag &= ~CSIZE;
+    this->tty_.c_cflag |= CS8;
 
-    // disable canonical mode and special character interpretation
-    this->tty_.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-    this->tty_.c_iflag &= ~(IXON | IXOFF | IXANY);
-
-    // raw output mode
-    this->tty_.c_oflag &= ~OPOST;
-
-    // disable posix control characters
-    memset(this->tty_.c_cc, _POSIX_VDISABLE, sizeof(this->tty_.c_cc));
+    this->tty_.c_lflag |= ICANON;
+    this->tty_.c_lflag &= ~(ECHO | ECHOE | ISIG);
+    this->tty_.c_cc[VEOL] = '\n';
 }
 
-void GPS::ReadMessageIntoBuffer() {
-    int n = read(this->serial_port_, this->read_buffer_, sizeof(char) * BUFSIZE);
-    std::cout << "Read " << n << " bytes " << this->read_buffer_ << "\n";
+std::string GPS::ReadRawSerialMessage() {
+    int bytes_read = read(this->serial_port_, this->read_buffer_, sizeof(char) * BUFSIZE);
+
+    this->read_buffer_[bytes_read] = '\0';
+    std::string message(this->read_buffer_, bytes_read - 2); // get rid of \r\n at the end
+
+    // flush buffer to remove residual data
+    memset(this->read_buffer_, '\0', sizeof(this->read_buffer_));
+    return message;
 }
