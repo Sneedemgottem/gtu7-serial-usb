@@ -14,15 +14,11 @@ GPS::GPS() {
         std::cout << "Error " << errno << " from open: " << strerror(errno) << "\n";
     }
 
-    this->SetTTYStructFlags();
-
-    if (tcsetattr(this->serial_port_, TCSANOW, &this->tty_) != 0) {
-        std::cout << "Error " << errno << " from tcsetattr: " << strerror(errno) << "\n";
-    }
+    this->PrepareTTYPort();
 }
 
 // set tty flags in accordance to the ascii data sent over usb
-void GPS::SetTTYStructFlags() {
+void GPS::PrepareTTYPort() {
     if (tcgetattr(this->serial_port_, &this->tty_) != 0) {
         std::cout << "Error " << errno << " from tcgetattr: " << strerror(errno) << "\n";
     }
@@ -40,6 +36,10 @@ void GPS::SetTTYStructFlags() {
     this->tty_.c_lflag |= ICANON;
     this->tty_.c_lflag &= ~(ECHO | ECHOE | ISIG);
     this->tty_.c_cc[VEOL] = '\n';
+
+    if (tcsetattr(this->serial_port_, TCSANOW, &this->tty_) != 0) {
+        std::cout << "Error " << errno << " from tcsetattr: " << strerror(errno) << "\n";
+    }
 }
 
 std::string GPS::ReadRawSerialMessage() {

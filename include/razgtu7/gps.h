@@ -24,5 +24,5 @@ class GPS {
         int serial_port_;
         char read_buffer_[BUFSIZE]; // this buffer is gonna get reused over and over again to prevent too much allocation
 
-        void SetTTYStructFlags();
+        void PrepareTTYPort();
 };
