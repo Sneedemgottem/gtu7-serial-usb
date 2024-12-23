@@ -7,7 +7,6 @@
 int main() {
     GPS gps;
 
-    // there's currently a buffer overflow issue somehow and also it reads \r and \n into the buffer when it gets skipped.
     while (true) {
         std::string message = gps.ReadRawSerialMessage();
         std::cout << "message: [" << message << "]\n";
